@@ -59,7 +59,7 @@ final class PinyinResource {
             String line = null;
             while ((line = br.readLine()) != null) {
                 String[] tokens = line.trim().split("=");
-                map.put(tokens[0], tokens[1]);
+                map.put(tokens[0].trim(), tokens[1].trim());
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
