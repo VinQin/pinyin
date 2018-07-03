@@ -8,6 +8,8 @@ import java.io.FileReader;
 import java.io.IOException;
 
 public class TestPinyinHelper {
+    private final String tmpFilePath = "/tmp/mytmp/test.txt";
+
     public static void print(String[] r) {
         System.out.print("[");
         for (int i = 0, len = r.length; i < len; i++) {
@@ -94,9 +96,16 @@ public class TestPinyinHelper {
     }
 
     @Test
-    public void testConvertToPinyinString1() {
-        String statement = readFromFile("/tmp/mytmp/test.txt");
-        String res = PinyinHelper.convertToPinyinString(statement, " ");
+    public void testConvertToPinyinString1() throws PinyinException {
+        String statement = readFromFile(tmpFilePath);
+        String res = PinyinHelper.convertToPinyinString(statement, " ", PinyinFormat.WITH_TONE_MARK, false);
+        System.out.println(res);
+    }
+
+    @Test
+    public void testConvertToShortPinyin() {
+        String statement = readFromFile(tmpFilePath);
+        String res = PinyinHelper.convertToShortPinyin(statement);
         System.out.println(res);
     }
 }

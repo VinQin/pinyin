@@ -171,7 +171,7 @@ public class PinyinHelper {
                     multiPinyinArray = new String[1];
                     multiPinyinArray[0] = chineseStr; // 多音字map中找不到对应拼音，则原样返回汉字字符串
                 }
-                result.append(combineElementOfStringArray(multiPinyinArray, separator));
+                result.append(combineElementOfStringArrayBySeparatorSign(multiPinyinArray, separator));
             } else {
                 String[] pinyinArray = new String[chineseStr.length()];
                 for (int i = 0, k = 0, len = chineseStr.length(); i < len; i++, k++) {
@@ -184,14 +184,74 @@ public class PinyinHelper {
                     if (0 == tmp.length) {
                         pinyinArray[k] = String.valueOf(c);
                     } else {
-                        pinyinArray[k] = tmp[0];
+                        pinyinArray[k] = tmp[0]; // use the first pinyin if the pinyin is multi-pinyin 如果为多音字则取该字的第一个拼音
                     }
                 }
-                result.append(combineElementOfStringArray(pinyinArray, separator));
+                result.append(combineElementOfStringArrayBySeparatorSign(pinyinArray, separator));
             }
         }
 
-        return result.toString();
+        String res = result.toString();
+        int firstIndexOfSeparator = res.indexOf(separator);
+        int lengthOfSeparator = firstIndexOfSeparator == -1 ? 1 : separator.length();
+        return res.substring(firstIndexOfSeparator + lengthOfSeparator); // subtract the first separator
+    }
+
+    /**
+     * Convert Chinese string to specified {@linkplain edu.stu.pinyin.PinyinFormat pinyin format}. This method will
+     * throw a PinyinException when strict is true and the specified string contains non Chinese character
+     *
+     * @param statement    the string which contains Chinese characters
+     * @param separator    the sign to separate each pinyin
+     * @param pinyinFormat the format of pinyin
+     * @param strict       if be strict to convert Chinese character
+     * @return the string of pinyin with specified format
+     * @throws PinyinException when statement contains character that is not a Chinese character
+     */
+    public static String convertToPinyinString(String statement, String separator, PinyinFormat pinyinFormat, final
+    boolean strict) throws PinyinException {
+        if (!strict) {
+            return convertToPinyinString(statement, separator, pinyinFormat);
+        }
+        Map<String, Boolean> resultMap = TREE_MAP_TRIE.splitByMultiPinyin(statement);
+        StringBuilder result = new StringBuilder();
+        for (Map.Entry<String, Boolean> entry : resultMap.entrySet()) {
+            String chineseStr = entry.getKey();
+            boolean multiPinyinFlag = entry.getValue();
+
+            if (multiPinyinFlag) { // 多音字
+                String multiPinyin = MULTI_PINYIN_TABLE.get(chineseStr);
+                String[] multiPinyinArray;
+                if ((null != multiPinyin) && (!multiPinyin.equals("null"))) {
+                    multiPinyinArray = formatPinyin(multiPinyin, pinyinFormat);
+                    if (0 == multiPinyinArray.length) {
+                        throw new PinyinException("Can't convert to pinyin: " + chineseStr);
+                    }
+                } else {
+                    throw new PinyinException("Can't convert to pinyin: " + chineseStr);
+                }
+                result.append(combineElementOfStringArrayBySeparatorSign(multiPinyinArray, separator));
+            } else {
+                String[] pinyinArray = new String[chineseStr.length()];
+                for (int i = 0, k = 0, len = chineseStr.length(); i < len; i++, k++) {
+                    char c = chineseStr.charAt(i);
+                    if (!ChineseHelper.isChineseCharacter(c)) {
+                        throw new PinyinException("Can't convert to pinyin: " + c);
+                    }
+                    String[] tmp = convertToPinyinArray(c, pinyinFormat);
+                    if (0 == tmp.length) {
+                        throw new PinyinException("Can't convert to pinyin: " + c);
+                    }
+                    pinyinArray[k] = tmp[0];
+                }
+                result.append(combineElementOfStringArrayBySeparatorSign(pinyinArray, separator));
+            }
+
+        }
+        String res = result.toString();
+        int firstIndexOfSeparator = res.indexOf(separator);
+        int lengthOfSeparator = firstIndexOfSeparator == -1 ? 1 : separator.length();
+        return res.substring(firstIndexOfSeparator + lengthOfSeparator); // subtract the first separator
     }
 
     /**
@@ -205,12 +265,22 @@ public class PinyinHelper {
         return convertToPinyinString(statement, separator, PinyinFormat.WITH_TONE_MARK);
     }
 
+    @Deprecated
     private static String combineElementOfStringArray(String[] pinyinArray, String separator) {
         StringBuilder sb = new StringBuilder();
         sb.append(pinyinArray[0]);
         for (int i = 1; i < pinyinArray.length; i++) {
             sb.append(separator);
             sb.append(pinyinArray[i]);
+        }
+        return sb.toString();
+    }
+
+    private static String combineElementOfStringArrayBySeparatorSign(String[] pinyinArray, String separator) {
+        StringBuilder sb = new StringBuilder(pinyinArray.length * 2);
+        for (String pinyin : pinyinArray) {
+            sb.append(separator);
+            sb.append(pinyin);
         }
         return sb.toString();
     }
@@ -225,6 +295,65 @@ public class PinyinHelper {
         String[] pinyinArray = convertToPinyinArray(c);
         return pinyinArray.length > 1;
     }
+
+    /**
+     * Convert string containing Chinese characters to pinyin string where each pinyin only keeps it's first
+     * character. eg: yīng --> y
+     *
+     * @param statement the string which contains Chinese characters
+     * @return pinyin string where each pinyin only keeps it's first character
+     */
+    public static String convertToShortPinyin(String statement) {
+        String separator = "#"; // use # as the separator sign
+        String pinyins = convertToPinyinString(statement, separator, PinyinFormat.WITHOUT_TONE);
+        String[] pinyinArray = pinyins.split(separator);
+        char[] shortPinyin = new char[pinyinArray.length];
+        int k = 0;
+        for (String pinyin : pinyinArray) {
+            shortPinyin[k++] = pinyin.charAt(0);
+        }
+        return String.valueOf(shortPinyin);
+    }
+
+    /**
+     * Combine all multi-pinyin of Chinese character in statement and make each pinyin abbreviated(keep the first
+     * character of each pinyin). <br/>
+     * eg: 单小强 --> [dxq, sxj, cxq, dxj, sxq, cxj]
+     *
+     * @param statement the string which contains Chinese characters
+     * @return Combination of multi-pinyin
+     */
+    public static String[] getShortOfMultiPinyin(String statement) {
+        //TODO
+
+    }
+
+    public static String[] getShortOfMultiPinyin(String statement, final boolean strict) throws PinyinException {
+        if (!strict) {
+            return getShortOfMultiPinyin(statement);
+        }
+        //TODO
+    }
+//
+//    public static String[] getFullOfMultiPinyin(String statement, PinyinFormat pinyinFormat) {
+//        //TODO
+//    }
+//
+//    public static String[] getFullOfMultiPinyin(String statement, PinyinFormat pinyinFormat, final boolean strict)
+//            throws PinyinException {
+//        if (!strict) {
+//            return getFullOfMultiPinyin(statement, pinyinFormat);// 如果不要求输入的数据全部为中文字符
+//        }
+//        //TODO
+//    }
+//
+//    public static String[] getFullOfMultiPinyin(String statement) {
+//        return getFullOfMultiPinyin(statement, PinyinFormat.WITH_TONE_MARK);
+//    }
+//
+//    public static String[] getFullOfMultiPinyin(String statement, final boolean strict) throws PinyinException {
+//        return getFullOfMultiPinyin(statement, PinyinFormat.WITH_TONE_MARK, strict);
+//    }
 
 
 }

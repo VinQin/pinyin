@@ -24,7 +24,7 @@ public class TreeMapTrie {
 
     private static TreeMapTrie treeMapTrie;
     private static final ChineseWordsTrie root = new ChineseWordsTrie('0');
-    private String[] words; // every element is a Chinese word not a single character, eg: 了如指掌
+    private String[] words; // every element is a Chinese word not a single character, eg: words[0] == 了如指掌
 
     private TreeMapTrie(String[] words) {
         this.words = words;
@@ -197,7 +197,7 @@ public class TreeMapTrie {
     }
 
     public Map<String, Boolean> splitByMultiPinyin(String statement) {
-        Map<String, Boolean> map = new HashMap<>();
+        Map<String, Boolean> map = new LinkedHashMap<>(); //这里千万不能用HashMap只能用LinkedHashMap，因为需要保存元素的插入顺序
         StringBuilder surplus = new StringBuilder();
         boolean b = false;
 
