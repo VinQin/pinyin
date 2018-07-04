@@ -1,7 +1,7 @@
 package edu.stu.pinyin;
 
 /**
- * The format on pinyin
+ * The format of pinyin
  *
  * @author vinqin
  * @version create time -- Mon Jul 2 CST 2018

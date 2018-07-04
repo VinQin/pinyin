@@ -199,7 +199,7 @@ public class PinyinHelper {
      * @param statement    the string which contains Chinese characters
      * @param separator    the sign to separate each pinyin
      * @param pinyinFormat the format of pinyin
-     * @param strict       if be strict to convert Chinese character
+     * @param strict       whether be strict to convert Chinese character
      * @return the string of pinyin with specified format
      * @throws PinyinException when statement contains character that is not a Chinese character
      */
@@ -421,33 +421,105 @@ public class PinyinHelper {
     /**
      * Combine all multi-pinyin of Chinese character in statement and make each pinyin abbreviated(keep the first
      * character of each pinyin). <br/>
-     * eg: 单小强 --> [dxq, sxj, cxq, dxj, sxq, cxj]
-     * <p>It is better to limit the length of statement to an acceptable range in case of OOM Exception.<p/>
+     * eg: 单小强 --> {"dxq", "sxj", "cxq", "dxj", "sxq", "cxj"}
+     * <p>
+     * <b>Note:</b> It is suggested to limit the length of statement to an acceptable range in case of OOM Exception.
+     * <p/>
      *
      * @param statement the string which contains Chinese characters
-     * @return Combination of multi-pinyin
+     * @return product of multi-pinyin
      */
     public static String[] getShortOfMultiPinyin(String statement) {
         return getMultiPinyin(statement, PinyinFormat.WITHOUT_TONE, new Character('0'));
     }
 
+    /**
+     * Combine all multi-pinyin of Chinese character in statement and make each pinyin abbreviate(keep the first
+     * character of each pinyin). This method will throw a PinyinException when strict is true and the specified
+     * string contains non Chinese character. <br/>
+     * eg: 单小强 --> {"dxq", "sxj", "cxq", "dxj", "sxq", "cxj"}
+     * <p>
+     * <b>Note:</b> It is suggested to limit the length of statement to an acceptable range in case of OOM Exception
+     * .<p/>
+     *
+     * @param statement the string which contains Chinese characters
+     * @param strict    whether be strict to combine only Chinese character that may has multi-pinyin
+     * @return product of multi-pinyin
+     * @throws PinyinException when statement contains character that is not a Chinese character
+     * @see PinyinHelper#getShortOfMultiPinyin(String)
+     */
     public static String[] getShortOfMultiPinyin(String statement, final boolean strict) throws PinyinException {
         return getMultiPinyin(statement, PinyinFormat.WITHOUT_TONE, new Character('0'), strict);
     }
 
+    /**
+     * Combine all multi-pinyin of Chinese character in statement by specified
+     * {@linkplain edu.stu.pinyin.PinyinFormat pinyin format}. <br/>
+     * eg: 单车 --> {"dānchē", "dānjū", "shànchē", "shànjū","chánchē", "chánjū"} if specified pinyinFormat is
+     * PinyinFormat.WITH_TONE_MARK
+     * <p>
+     * <b>Note:</b> It is suggested to limit the length of statement to an acceptable range in case of OOM Exception.
+     * <p/>
+     *
+     * @param statement    the string which contains Chinese characters
+     * @param pinyinFormat the multi-pinyin format
+     * @return product of multi-pinyin
+     */
     public static String[] getFullOfMultiPinyin(String statement, PinyinFormat pinyinFormat) {
         return getMultiPinyin(statement, pinyinFormat, new String());
     }
 
+    /**
+     * Combine all multi-pinyin of Chinese character in statement by specified
+     * {@linkplain edu.stu.pinyin.PinyinFormat pinyin format}. This method will throw a PinyinException when strict
+     * is true and the specified string contains non Chinese character. <br/>
+     * eg: 单车 --> {"dānchē", "dānjū", "shànchē", "shànjū","chánchē", "chánjū"} if specified pinyinFormat is
+     * PinyinFormat.WITH_TONE_MARK
+     * <b>Note:</b> It is suggested to limit the length of statement to an acceptable range in case of OOM Exception.
+     * <p/>
+     *
+     * @param statement    the string which contains Chinese characters
+     * @param pinyinFormat the multi-pinyin format
+     * @param strict       whether be strict to combine only Chinese character that may has multi-pinyin
+     * @return product of multi-pinyin
+     * @throws PinyinException when statement contains character that is not a Chinese character
+     * @see PinyinHelper#getFullOfMultiPinyin(String, PinyinFormat)
+     */
     public static String[] getFullOfMultiPinyin(String statement, PinyinFormat pinyinFormat, final boolean strict)
             throws PinyinException {
         return getMultiPinyin(statement, pinyinFormat, new String(), strict);
     }
 
+    /**
+     * Combine all multi-pinyin of Chinese character in statement by PinyinFormat.WITH_TONE_MARK. <br/>
+     * eg: 单车 --> {"dānchē", "dānjū", "shànchē", "shànjū","chánchē", "chánjū"}
+     * <p>
+     * <b>Note:</b> It is suggested to limit the length of statement to an acceptable range in case of OOM Exception.
+     * <p/>
+     *
+     * @param statement the string which contains Chinese characters
+     * @return product of multi-pinyin
+     * @see PinyinHelper#getFullOfMultiPinyin(String, PinyinFormat)
+     * @see PinyinHelper#getFullOfMultiPinyin(String, PinyinFormat, boolean)
+     */
     public static String[] getFullOfMultiPinyin(String statement) {
         return getFullOfMultiPinyin(statement, PinyinFormat.WITH_TONE_MARK);
     }
 
+    /**
+     * Combine all multi-pinyin of Chinese character in statement by PinyinFormat.WITH_TONE_MARK. This method will
+     * throw a PinyinException when strict is true and the specified string contains non Chinese character. <br/>
+     * eg: 单车 --> {"dānchē", "dānjū", "shànchē", "shànjū","chánchē", "chánjū"}
+     * <b>Note:</b> It is suggested to limit the length of statement to an acceptable range in case of OOM Exception.
+     * <p/>
+     *
+     * @param statement the string which contains Chinese characters
+     * @param strict    whether be strict to combine only Chinese character that may has multi-pinyin
+     * @return product of multi-pinyin
+     * @throws PinyinException when statement contains character that is not a Chinese character
+     * @see PinyinHelper#getFullOfMultiPinyin(String, PinyinFormat)
+     * @see PinyinHelper#getFullOfMultiPinyin(String, PinyinFormat, boolean)
+     */
     public static String[] getFullOfMultiPinyin(String statement, final boolean strict) throws PinyinException {
         return getFullOfMultiPinyin(statement, PinyinFormat.WITH_TONE_MARK, strict);
     }
