@@ -1,9 +1,6 @@
 package edu.stu.pinyin;
 
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author vinqin
@@ -126,9 +123,7 @@ public class PinyinHelper {
     public static String[] convertToPinyinArray(char c, PinyinFormat pinyinFormat) {
         String pinyinString = PINYIN_TABLE.get(String.valueOf(c));
         if ((null != pinyinString) && (!pinyinString.equals("null"))) {
-            Set<String> set = new LinkedHashSet<>();
-            set.addAll(Arrays.asList(formatPinyin(pinyinString, pinyinFormat))); // remove all duplicated elements
-            return set.toArray(new String[set.size()]);
+            return removeDuplication(formatPinyin(pinyinString, pinyinFormat));
         }
         return new String[0];
     }
@@ -225,10 +220,10 @@ public class PinyinHelper {
                 if ((null != multiPinyin) && (!multiPinyin.equals("null"))) {
                     multiPinyinArray = formatPinyin(multiPinyin, pinyinFormat);
                     if (0 == multiPinyinArray.length) {
-                        throw new PinyinException("Can't convert to pinyin: " + chineseStr);
+                        throw new PinyinException("Can't convert to pinyin: <" + chineseStr + ">");
                     }
                 } else {
-                    throw new PinyinException("Can't convert to pinyin: " + chineseStr);
+                    throw new PinyinException("Can't convert to pinyin: <" + chineseStr + ">");
                 }
                 result.append(combineElementOfStringArrayBySeparatorSign(multiPinyinArray, separator));
             } else {
@@ -236,11 +231,11 @@ public class PinyinHelper {
                 for (int i = 0, k = 0, len = chineseStr.length(); i < len; i++, k++) {
                     char c = chineseStr.charAt(i);
                     if (!ChineseHelper.isChineseCharacter(c)) {
-                        throw new PinyinException("Can't convert to pinyin: " + c);
+                        throw new PinyinException("Can't convert to pinyin: <" + c + ">");
                     }
                     String[] tmp = convertToPinyinArray(c, pinyinFormat);
                     if (0 == tmp.length) {
-                        throw new PinyinException("Can't convert to pinyin: " + c);
+                        throw new PinyinException("Can't convert to pinyin: <" + c + ">");
                     }
                     pinyinArray[k] = tmp[0];
                 }
@@ -315,45 +310,146 @@ public class PinyinHelper {
         return String.valueOf(shortPinyin);
     }
 
+    private static <T> String[] getMultiPinyin(String statement, PinyinFormat pinyinFormat, T type) {
+        final int SIZE = statement.length();
+        List<T>[] pinyinArray = new List[SIZE];
+
+        for (int i = 0; i < SIZE; i++) {
+            pinyinArray[i] = new ArrayList<>();
+            char c = statement.charAt(i);
+            String[] pinyins = convertToPinyinArray(c, pinyinFormat);
+            if (pinyins.length == 0) { // c is not a Chinese character
+                if (type instanceof Character) {
+                    T cc = (T) Character.valueOf(c);
+                    pinyinArray[i].add(cc);
+                } else if (type instanceof String) {
+                    T cc = (T) String.valueOf(c);
+                    pinyinArray[i].add(cc);
+                } else {
+                    //throw new PinyinException("Can't convert to pinyin: " + c);
+                }
+            } else {
+                for (String pinyin : pinyins) {
+                    if (type instanceof Character) {
+                        Character p = pinyin.charAt(0);
+                        pinyinArray[i].add((T) p);
+                    }
+                    if (type instanceof String) {
+                        pinyinArray[i].add((T) pinyin);
+                    }
+
+                }
+            }
+        }
+
+        List<?> resultList = new CartesianProduct().product(pinyinArray);
+        int lenOfList = resultList.size();
+        String[] result = new String[lenOfList];
+        for (int i = 0; i < lenOfList; i++) {
+            Object obj = resultList.get(i);
+            if (obj instanceof List) {
+                result[i] = getMultiPinyin((List<?>) obj);
+            } else {
+                result[i] = obj.toString();
+            }
+        }
+
+        return removeDuplication(result);
+    }
+
+    private static String getMultiPinyin(List<?> lists) {
+        StringBuilder sb = new StringBuilder();
+        for (Object list : lists) {
+            if (list instanceof List) {
+                sb.append(getMultiPinyin((List<?>) list));
+            } else {
+                sb.append(list.toString());
+            }
+        }
+        return sb.toString();
+    }
+
+    private static String[] removeDuplication(String[] origin) {
+        Set<String> set = new LinkedHashSet<>();
+        set.addAll(Arrays.asList(origin));
+        return set.toArray(new String[set.size()]);
+        // be careful set.toArray(origin); is wrong. Because origin.length >= set.size()
+    }
+
+    private static <T> String[] getMultiPinyin(String statement, PinyinFormat pinyinFormat, T type, final boolean
+            strict) throws PinyinException {
+        if (!strict) {
+            return getMultiPinyin(statement, pinyinFormat, type);
+        }
+        final int SIZE = statement.length();
+        List<T>[] pinyinArray = new List[SIZE];
+
+        for (int i = 0; i < SIZE; i++) {
+            pinyinArray[i] = new ArrayList<>();
+            char c = statement.charAt(i);
+            String[] pinyins = convertToPinyinArray(c, pinyinFormat);
+            if (0 == pinyins.length || !ChineseHelper.isChineseCharacter(c)) { // c is not a Chinese character
+                throw new PinyinException("Can't convert to pinyin: <" + c + ">");
+            }
+            for (String pinyin : pinyins) {
+                if (type instanceof Character) {
+                    Character p = pinyin.charAt(0);
+                    pinyinArray[i].add((T) p);
+                }
+                if (type instanceof String) {
+                    pinyinArray[i].add((T) pinyin);
+                }
+            }
+        }
+
+        List<?> resultList = new CartesianProduct().product(pinyinArray);
+        int lenOfList = resultList.size();
+        String[] result = new String[lenOfList];
+        for (int i = 0; i < lenOfList; i++) {
+            Object obj = resultList.get(i);
+            if (obj instanceof List) {
+                result[i] = getMultiPinyin((List<?>) obj);
+            } else {
+                result[i] = obj.toString();
+            }
+        }
+
+        return removeDuplication(result);
+
+    }
+
     /**
      * Combine all multi-pinyin of Chinese character in statement and make each pinyin abbreviated(keep the first
      * character of each pinyin). <br/>
      * eg: 单小强 --> [dxq, sxj, cxq, dxj, sxq, cxj]
+     * <p>It is better to limit the length of statement to an acceptable range in case of OOM Exception.<p/>
      *
      * @param statement the string which contains Chinese characters
      * @return Combination of multi-pinyin
      */
     public static String[] getShortOfMultiPinyin(String statement) {
-        //TODO
-
+        return getMultiPinyin(statement, PinyinFormat.WITHOUT_TONE, new Character('0'));
     }
 
     public static String[] getShortOfMultiPinyin(String statement, final boolean strict) throws PinyinException {
-        if (!strict) {
-            return getShortOfMultiPinyin(statement);
-        }
-        //TODO
+        return getMultiPinyin(statement, PinyinFormat.WITHOUT_TONE, new Character('0'), strict);
     }
-//
-//    public static String[] getFullOfMultiPinyin(String statement, PinyinFormat pinyinFormat) {
-//        //TODO
-//    }
-//
-//    public static String[] getFullOfMultiPinyin(String statement, PinyinFormat pinyinFormat, final boolean strict)
-//            throws PinyinException {
-//        if (!strict) {
-//            return getFullOfMultiPinyin(statement, pinyinFormat);// 如果不要求输入的数据全部为中文字符
-//        }
-//        //TODO
-//    }
-//
-//    public static String[] getFullOfMultiPinyin(String statement) {
-//        return getFullOfMultiPinyin(statement, PinyinFormat.WITH_TONE_MARK);
-//    }
-//
-//    public static String[] getFullOfMultiPinyin(String statement, final boolean strict) throws PinyinException {
-//        return getFullOfMultiPinyin(statement, PinyinFormat.WITH_TONE_MARK, strict);
-//    }
 
+    public static String[] getFullOfMultiPinyin(String statement, PinyinFormat pinyinFormat) {
+        return getMultiPinyin(statement, pinyinFormat, new String());
+    }
+
+    public static String[] getFullOfMultiPinyin(String statement, PinyinFormat pinyinFormat, final boolean strict)
+            throws PinyinException {
+        return getMultiPinyin(statement, pinyinFormat, new String(), strict);
+    }
+
+    public static String[] getFullOfMultiPinyin(String statement) {
+        return getFullOfMultiPinyin(statement, PinyinFormat.WITH_TONE_MARK);
+    }
+
+    public static String[] getFullOfMultiPinyin(String statement, final boolean strict) throws PinyinException {
+        return getFullOfMultiPinyin(statement, PinyinFormat.WITH_TONE_MARK, strict);
+    }
 
 }

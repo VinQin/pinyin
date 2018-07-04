@@ -11,14 +11,14 @@ public class TestPinyinHelper {
     private final String tmpFilePath = "/tmp/mytmp/test.txt";
 
     public static void print(String[] r) {
-        System.out.print("[");
+        System.out.print("{");
         for (int i = 0, len = r.length; i < len; i++) {
             System.out.print(r[i]);
             if (i < len - 1) {
                 System.out.print(", ");
             }
         }
-        System.out.println("]");
+        System.out.println("}");
     }
 
     private String readFromFile(String filePath) {
@@ -108,4 +108,25 @@ public class TestPinyinHelper {
         String res = PinyinHelper.convertToShortPinyin(statement);
         System.out.println(res);
     }
+
+    @Test
+    public void testGetShortOfMultiPinyin() throws PinyinException {
+        Assertions.assertArrayEquals(PinyinHelper.getShortOfMultiPinyin("强者"), new String[]{"qz", "jz"});
+        Assertions.assertArrayEquals(PinyinHelper.getShortOfMultiPinyin("单小强", false), new String[]{"dxq", "dxj", "sxq",
+                "sxj", "cxq", "cxj"});
+        Assertions.assertArrayEquals(PinyinHelper.getShortOfMultiPinyin("上善若水", true), new String[]{"ssrs"});
+    }
+
+    @Test
+    public void testGetFullOfMultiPinyin() {
+        Assertions.assertArrayEquals(PinyinHelper.getFullOfMultiPinyin("单车"), new String[]{"dānchē", "dānjū",
+                "shànchē", "shànjū", "chánchē", "chánjū"});
+        try {
+            String[] r1 = PinyinHelper.getFullOfMultiPinyin("成都の阳亚妮", true);
+            Assertions.fail("Expected an PinyinException to be thrown");
+        } catch (PinyinException e) {
+            Assertions.assertEquals(e.getMessage(), "Can't convert to pinyin: <の>");
+        }
+    }
+
 }
