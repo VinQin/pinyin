@@ -293,7 +293,7 @@ public class PinyinHelper {
 
     /**
      * Convert string containing Chinese characters to pinyin string where each pinyin only keeps it's first
-     * character. eg: yīng --> y
+     * character. eg: yīng --&gt; y
      *
      * @param statement the string which contains Chinese characters
      * @return pinyin string where each pinyin only keeps it's first character
@@ -420,11 +420,11 @@ public class PinyinHelper {
 
     /**
      * Combine all multi-pinyin of Chinese character in statement and make each pinyin abbreviated(keep the first
-     * character of each pinyin). <br/>
-     * eg: 单小强 --> {"dxq", "sxj", "cxq", "dxj", "sxq", "cxj"}
+     * character of each pinyin). <br>
+     * eg: 单小强 --&gt; {"dxq", "sxj", "cxq", "dxj", "sxq", "cxj"}
      * <p>
      * <b>Note:</b> It is suggested to limit the length of statement to an acceptable range in case of OOM Exception.
-     * <p/>
+     * </p>
      *
      * @param statement the string which contains Chinese characters
      * @return product of multi-pinyin
@@ -436,11 +436,10 @@ public class PinyinHelper {
     /**
      * Combine all multi-pinyin of Chinese character in statement and make each pinyin abbreviate(keep the first
      * character of each pinyin). This method will throw a PinyinException when strict is true and the specified
-     * string contains non Chinese character. <br/>
-     * eg: 单小强 --> {"dxq", "sxj", "cxq", "dxj", "sxq", "cxj"}
-     * <p>
-     * <b>Note:</b> It is suggested to limit the length of statement to an acceptable range in case of OOM Exception
-     * .<p/>
+     * string contains non Chinese character. <br>
+     * eg: 单小强 --&gt; {"dxq", "sxj", "cxq", "dxj", "sxq", "cxj"}
+     * <p><b>Note:</b>
+     * It is suggested to limit the length of statement to an acceptable range in case of OOM Exception.</p>
      *
      * @param statement the string which contains Chinese characters
      * @param strict    whether be strict to combine only Chinese character that may has multi-pinyin
@@ -454,12 +453,12 @@ public class PinyinHelper {
 
     /**
      * Combine all multi-pinyin of Chinese character in statement by specified
-     * {@linkplain edu.stu.pinyin.PinyinFormat pinyin format}. <br/>
-     * eg: 单车 --> {"dānchē", "dānjū", "shànchē", "shànjū","chánchē", "chánjū"} if specified pinyinFormat is
+     * {@linkplain edu.stu.pinyin.PinyinFormat pinyin format}. <br>
+     * eg: 单车 --&gt; {"dānchē", "dānjū", "shànchē", "shànjū","chánchē", "chánjū"} if specified pinyinFormat is
      * PinyinFormat.WITH_TONE_MARK
      * <p>
      * <b>Note:</b> It is suggested to limit the length of statement to an acceptable range in case of OOM Exception.
-     * <p/>
+     * </p>
      *
      * @param statement    the string which contains Chinese characters
      * @param pinyinFormat the multi-pinyin format
@@ -472,11 +471,12 @@ public class PinyinHelper {
     /**
      * Combine all multi-pinyin of Chinese character in statement by specified
      * {@linkplain edu.stu.pinyin.PinyinFormat pinyin format}. This method will throw a PinyinException when strict
-     * is true and the specified string contains non Chinese character. <br/>
-     * eg: 单车 --> {"dānchē", "dānjū", "shànchē", "shànjū","chánchē", "chánjū"} if specified pinyinFormat is
+     * is true and the specified string contains non Chinese character. <br>
+     * eg: 单车 --&gt; {"dānchē", "dānjū", "shànchē", "shànjū","chánchē", "chánjū"} if specified pinyinFormat is
      * PinyinFormat.WITH_TONE_MARK
+     * <p>
      * <b>Note:</b> It is suggested to limit the length of statement to an acceptable range in case of OOM Exception.
-     * <p/>
+     * </p>
      *
      * @param statement    the string which contains Chinese characters
      * @param pinyinFormat the multi-pinyin format
@@ -491,11 +491,11 @@ public class PinyinHelper {
     }
 
     /**
-     * Combine all multi-pinyin of Chinese character in statement by PinyinFormat.WITH_TONE_MARK. <br/>
-     * eg: 单车 --> {"dānchē", "dānjū", "shànchē", "shànjū","chánchē", "chánjū"}
+     * Combine all multi-pinyin of Chinese character in statement by PinyinFormat.WITH_TONE_MARK. <br>
+     * eg: 单车 --&gt; {"dānchē", "dānjū", "shànchē", "shànjū","chánchē", "chánjū"}
      * <p>
      * <b>Note:</b> It is suggested to limit the length of statement to an acceptable range in case of OOM Exception.
-     * <p/>
+     * </p>
      *
      * @param statement the string which contains Chinese characters
      * @return product of multi-pinyin
@@ -508,10 +508,11 @@ public class PinyinHelper {
 
     /**
      * Combine all multi-pinyin of Chinese character in statement by PinyinFormat.WITH_TONE_MARK. This method will
-     * throw a PinyinException when strict is true and the specified string contains non Chinese character. <br/>
-     * eg: 单车 --> {"dānchē", "dānjū", "shànchē", "shànjū","chánchē", "chánjū"}
+     * throw a PinyinException when strict is true and the specified string contains non Chinese character. <br>
+     * eg: 单车 --&gt; {"dānchē", "dānjū", "shànchē", "shànjū","chánchē", "chánjū"}
+     * <p>
      * <b>Note:</b> It is suggested to limit the length of statement to an acceptable range in case of OOM Exception.
-     * <p/>
+     * </p>
      *
      * @param statement the string which contains Chinese characters
      * @param strict    whether be strict to combine only Chinese character that may has multi-pinyin
