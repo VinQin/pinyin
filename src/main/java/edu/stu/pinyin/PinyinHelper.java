@@ -92,6 +92,71 @@ public class PinyinHelper {
         return pinyinArray;
     }
 
+    static String convertWithToneMark(String pinyinWithToneNumberString) {
+        int tone = Integer.parseInt(pinyinWithToneNumberString.substring(pinyinWithToneNumberString.length() - 1));
+        if (5 == tone) {
+            return pinyinWithToneNumberString.substring(0, pinyinWithToneNumberString.length() - 1); // 轻声直接去掉原拼音后面的数字
+        }
+        char[] vowel = ALL_UNMARKED_VOWEL.toCharArray();
+        char[] pinyinWithToneMark = pinyinWithToneNumberString.substring(0, pinyinWithToneNumberString.length() - 1)
+                .toCharArray();
+        tone -= 5;
+        for (int i = 0, len = vowel.length; i < len; i++) {
+            String v = String.valueOf(vowel[i]);
+            if (pinyinWithToneNumberString.contains(v)) {
+                int indexOfV = pinyinWithToneNumberString.indexOf(v);
+                int j = (i + 1) * 4 + tone;
+                pinyinWithToneMark[indexOfV] = ALL_MARKED_VOWEL.charAt(j);
+                break;
+            }
+        }
+        return new String(pinyinWithToneMark);
+    }
+
+    public static String convertWithToneMark(String[] pinyinWithToneNumberArray, String separator) {
+        StringBuilder sb = new StringBuilder();
+        final String REGEX = "^[a-z]+[1-5]$";
+        for (int i = 0, len = pinyinWithToneNumberArray.length; i < len; i++) {
+            String pinyinWithToneNumberString = pinyinWithToneNumberArray[i];
+            if (!pinyinWithToneNumberString.matches(REGEX)) {
+                if (i != 0) {
+                    sb.append(separator);
+                }
+                sb.append(pinyinWithToneNumberString);
+                continue;
+            }
+            String pinyinWithToneMark = convertWithToneMark(pinyinWithToneNumberString);
+            if (i != 0) {
+                sb.append(separator);
+            }
+            sb.append(pinyinWithToneMark);
+        }
+        return sb.toString();
+    }
+
+    public static String convertWithToneMark(String[] pinyinWithToneNumberArray, String separator, final boolean
+            strict) throws
+            PinyinException {
+        if (!strict) {
+            return convertWithToneMark(pinyinWithToneNumberArray, separator);
+        }
+        StringBuilder sb = new StringBuilder(2 * pinyinWithToneNumberArray.length - 1);
+        final String REGEX = "^[a-z]+[1-5]$";
+        for (int i = 0, len = pinyinWithToneNumberArray.length; i < len; i++) {
+            String pinyinWithToneNumberString = pinyinWithToneNumberArray[i];
+            if (!pinyinWithToneNumberString.matches(REGEX)) {
+                throw new PinyinException("Can't convert to pinyin with tone mark: <" + pinyinWithToneNumberString +
+                        ">");
+            }
+            String pinyinWithToneMark = convertWithToneMark(pinyinWithToneNumberString);
+            if (i != 0) {
+                sb.append(separator);
+            }
+            sb.append(pinyinWithToneMark);
+        }
+        return sb.toString();
+    }
+
     /**
      * Convert the pinyin which contains tone with mark originally to specified
      * {@linkplain edu.stu.pinyin.PinyinFormat pinyin format}.
@@ -202,6 +267,7 @@ public class PinyinHelper {
      * @param strict       whether be strict to convert Chinese character
      * @return the string of pinyin with specified format
      * @throws PinyinException when statement contains character that is not a Chinese character
+     * @see PinyinHelper#convertToPinyinString(String, String, PinyinFormat)
      */
     public static String convertToPinyinString(String statement, String separator, PinyinFormat pinyinFormat, final
     boolean strict) throws PinyinException {
@@ -255,9 +321,26 @@ public class PinyinHelper {
      * @param statement the string which contains Chinese characters
      * @param separator the sign to separate each pinyin
      * @return the string of pinyin with tone mark
+     * @see PinyinHelper#convertToPinyinString(String, String, PinyinFormat)
      */
     public static String convertToPinyinString(String statement, String separator) {
         return convertToPinyinString(statement, separator, PinyinFormat.WITH_TONE_MARK);
+    }
+
+    /**
+     * Convert string containing Chinese characters to pinyin with tone mark. This method will
+     * throw a PinyinException when strict is true and the specified string contains non Chinese character
+     *
+     * @param statement the string which contains Chinese characters
+     * @param separator the sign to separate each pinyin
+     * @param strict    whether be strict to convert Chinese character
+     * @return the string of pinyin with tone mark
+     * @throws PinyinException when statement contains character that is not a Chinese character
+     * @see PinyinHelper#convertToPinyinString(String, String, PinyinFormat, boolean)
+     */
+    public static String convertToPinyinString(String statement, String separator, final boolean strict) throws
+            PinyinException {
+        return convertToPinyinString(statement, separator, PinyinFormat.WITH_TONE_MARK, strict);
     }
 
     @Deprecated

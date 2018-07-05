@@ -129,4 +129,24 @@ public class TestPinyinHelper {
         }
     }
 
+    @Test
+    public void testConvertWithToneMark1() throws PinyinException {
+        Assertions.assertEquals(PinyinHelper.convertWithToneMark("le5"), "le");
+        Assertions.assertEquals(PinyinHelper.convertWithToneMark("lv4"), "lǜ");
+        Assertions.assertEquals(PinyinHelper.convertWithToneMark("ai4"), "ài");
+        String[] pinyinWithToneNumberArray = new String[]{"ni3", "hao3", "a1", "li3", "yin2", "he2"};
+        Assertions.assertEquals(PinyinHelper.convertWithToneMark(
+                pinyinWithToneNumberArray, " ", true), "nǐ hǎo ā lǐ yín hé");
+    }
+
+    @Test
+    public void testConvertWithToneMark2() throws PinyinException {
+        String pinyinString = PinyinHelper.convertToPinyinString(readFromFile(tmpFilePath), " ", PinyinFormat
+                .WITH_TONE_NUMBER);
+        System.out.println(pinyinString);
+        String[] pinyinWithToneNumberArray = pinyinString.split(" ");
+        System.out.println(PinyinHelper.convertWithToneMark(pinyinWithToneNumberArray, "|", false));
+
+    }
+
 }

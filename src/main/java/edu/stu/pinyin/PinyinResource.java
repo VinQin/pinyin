@@ -23,11 +23,9 @@ final class PinyinResource {
      */
     static Reader newClassPathReader(String classpath) {
         InputStream is = PinyinResource.class.getResourceAsStream(classpath);
-        try {
-            return new InputStreamReader(is, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            return null;
-        }
+        //return new InputStreamReader(is, "UTF-8");
+        return new InputStreamReader(is);
+
     }
 
     /**
@@ -38,11 +36,9 @@ final class PinyinResource {
      * @throws FileNotFoundException if the specified filepath is invalid
      */
     static Reader newFileReader(String filepath) throws FileNotFoundException {
-        try {
-            return new InputStreamReader(new FileInputStream(filepath), "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            return null;
-        }
+        //return new InputStreamReader(new FileInputStream(filepath), "UTF-8");
+        return new InputStreamReader(new FileInputStream(filepath));
+
     }
 
     /**
@@ -56,7 +52,7 @@ final class PinyinResource {
         Map<String, String> map = new ConcurrentHashMap<>();
         try {
             BufferedReader br = new BufferedReader(reader);
-            String line = null;
+            String line;
             while ((line = br.readLine()) != null) {
                 String[] tokens = line.trim().split("=");
                 map.put(tokens[0].trim(), tokens[1].trim());

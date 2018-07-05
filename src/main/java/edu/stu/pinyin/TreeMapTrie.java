@@ -152,15 +152,15 @@ public class TreeMapTrie {
      * 将句子statement按照指定的方式切割
      *
      * @param statement 需要切割的句子
-     * @param flag      切割方式
-     *                  true: 如果statement中包含词语，则将词语按照一个整体切割。将不是词语的按照单个汉字切割。
-     *                  false: 如果statement中包含词语，则将词语按照一个整体切割。将不是词语的按照一句话来切割。
-     *                  eg: statement="你好吗？李银河小姐"
-     *                  词语： "你好", "小姐"
+     * @param flag      切割方式 <br>
+     *                  true: 如果statement中包含词语，则将词语按照一个整体切割。将不是词语的按照单个汉字切割。 <br>
+     *                  false: 如果statement中包含词语，则将词语按照一个整体切割。将不是词语的按照一句话来切割。 <br>
+     *                  eg: statement="你好吗？李银河小姐" <br>
+     *                  词语： "你好", "小姐" <br>
      *                  flag=true
-     *                  ["你好", "吗", "？", "李", "银", "河", "小姐"]
+     *                  {"你好", "吗", "？", "李", "银", "河", "小姐"} <br>
      *                  flag=false
-     *                  ["你好", "吗？李银河", "小姐"]
+     *                  {"你好", "吗？李银河", "小姐"}
      * @return 切割结果
      */
     public String[] split(String statement, final boolean flag) {
