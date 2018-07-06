@@ -456,7 +456,7 @@ public class PinyinHelper {
         Set<String> set = new LinkedHashSet<>();
         set.addAll(Arrays.asList(origin));
         return set.toArray(new String[set.size()]);
-        // be careful set.toArray(origin); is wrong. Because origin.length >= set.size()
+        // be careful set.toArray(origin); is wrong. Because of origin.length >= set.size()
     }
 
     private static <T> String[] getMultiPinyin(String statement, PinyinFormat pinyinFormat, T type, final boolean

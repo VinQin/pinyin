@@ -85,6 +85,9 @@ final class PinyinResource {
             BufferedReader br = new BufferedReader(reader);
             String line;
             while ((line = br.readLine()) != null) {
+                if (line.equals("")) {
+                    continue;
+                }
                 String[] tokens = line.trim().split("=");
                 map.put(tokens[0].trim(), tokens[1].trim());
             }
