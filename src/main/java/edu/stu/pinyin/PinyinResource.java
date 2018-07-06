@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Load the resource files(.dict)
+ * Load the resource file(.dict).
  *
  * @author vinqin
  * @version create time -- Mon Jul 2 CST 2018
@@ -16,36 +16,67 @@ final class PinyinResource {
     }
 
     /**
-     * Convert the resource file from class path to java.io.Reader
+     * Load the resource file from class path to java.io.Reader
+     * <p><b>Note: </b>This method use UTF-8 charset as default. Make sure your .dict file is encoded by UTF-8 before
+     * call this method.</p>
      *
-     * @param classpath the class path of .dict file
+     * @param classpath The class path of .dict file
      * @return java.io.Reader, or null if the .dict file does not support the UTF-8 encoding during converting
      */
     static Reader newClassPathReader(String classpath) {
         InputStream is = PinyinResource.class.getResourceAsStream(classpath);
-        //return new InputStreamReader(is, "UTF-8");
-        return new InputStreamReader(is);
-
+        try {
+            return new InputStreamReader(is, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            return null;
+        }
     }
 
     /**
-     * Convert the resource file from file path to java.io.Reader
+     * Load the resource file from class path to java.io.Reader using a specified charset.
      *
-     * @param filepath the file path of .dict file
-     * @return java.io.Reader, or null if the .dict file does not support the UTF-8 encoding during converting
-     * @throws FileNotFoundException if the specified filepath is invalid
+     * @param classpath   The class path of .dict file
+     * @param charsetName The name of a supported charset {@link java.nio.charset.Charset charset}
+     * @return java.io.Reader
+     * @throws UnsupportedEncodingException If the named charset is not supported
+     */
+    static Reader newClassPathReader(String classpath, String charsetName) throws UnsupportedEncodingException {
+        InputStream is = PinyinResource.class.getResourceAsStream(classpath);
+        return new InputStreamReader(is, charsetName);
+    }
+
+    /**
+     * Load the resource file from file path to java.io.Reader. This method creates a Reader that uses the platform's
+     * default charset.
+     *
+     * @param filepath The file path of .dict file
+     * @return java.io.Reader
+     * @throws FileNotFoundException If the specified filepath is invalid
      */
     static Reader newFileReader(String filepath) throws FileNotFoundException {
-        //return new InputStreamReader(new FileInputStream(filepath), "UTF-8");
         return new InputStreamReader(new FileInputStream(filepath));
-
     }
+
+    /**
+     * Load the resource file from file path to java.io.Reader using a specified charset.
+     *
+     * @param filepath    The file path of .dict file
+     * @param charsetName The name of a supported charset {@link java.nio.charset.Charset charset}
+     * @return java.io.Reader
+     * @throws FileNotFoundException        If the specified filepath is invalid
+     * @throws UnsupportedEncodingException If the named charset is not supported
+     */
+    static Reader newFileReader(String filepath, String charsetName) throws FileNotFoundException,
+            UnsupportedEncodingException {
+        return new InputStreamReader(new FileInputStream(filepath), charsetName);
+    }
+
 
     /**
      * Return the instance of map from the specified resource stream.
      *
-     * @param reader the resource stream
-     * @return the instance of map in which the key is the left string of character '=' and the value is the right
+     * @param reader The resource stream
+     * @return The instance of map in which the key is the left string of character '=' and the value is the right
      * string of character '='.
      */
     static Map<String, String> getResource(Reader reader) {
@@ -65,9 +96,9 @@ final class PinyinResource {
     }
 
     /**
-     * Convert the pinyin.dict to map
+     * Convert the pinyin.dict file to map
      *
-     * @return the instance of map in which the key is the left string of character '=' and the value is the right
+     * @return The instance of map in which the key is the left string of character '=' and the value is the right
      * string of character '='.
      */
     static Map<String, String> getPinyinResource() {
@@ -75,9 +106,9 @@ final class PinyinResource {
     }
 
     /**
-     * Convert the multi_pinyin.dict to map
+     * Convert the multi_pinyin.dict file to map
      *
-     * @return the instance of map in which the key is the left string of character '=' and the value is the right
+     * @return The instance of map in which the key is the left string of character '=' and the value is the right
      * string of character '='.
      */
     static Map<String, String> getMultiPinyinResource() {
@@ -85,14 +116,13 @@ final class PinyinResource {
     }
 
     /**
-     * Convert the chinese.dict to map
+     * Convert the chinese.dict file to map
      *
-     * @return the instance of map in which the key is the left string of character '=' and the value is the right
+     * @return The instance of map in which the key is the left string of character '=' and the value is the right
      * string of character '='.
      */
     static Map<String, String> getChineseResource() {
         return getResource(newClassPathReader("/data/chinese.dict"));
     }
-
 
 }
