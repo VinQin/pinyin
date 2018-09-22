@@ -115,7 +115,8 @@ public class PinyinHelper {
 
     public static String convertWithToneMark(String[] pinyinWithToneNumberArray, String separator) {
         StringBuilder sb = new StringBuilder();
-        final String REGEX = "^[a-z]+[1-5]$";
+        //符号^表示以^后面的字符开始，符号+号表示+前面的字符出现1次或n次，符号$表示以$前面的字符结尾
+        final String REGEX = "^[a-z]+[1-5]$";  // 必须以小写字母开始，以数字1～5之间的一个结尾
         for (int i = 0, len = pinyinWithToneNumberArray.length; i < len; i++) {
             String pinyinWithToneNumberString = pinyinWithToneNumberArray[i];
             if (!pinyinWithToneNumberString.matches(REGEX)) {
